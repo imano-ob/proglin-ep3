@@ -9,7 +9,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
 % Muda A e b para que b seja >= 0
    [A b] = tornabpositivo(A,b,m);
 % fase 1! Teremos, no retorno, um A sem restrições redundantes e um tableau preparado
-   [A tab] = fase1(A,b,m,n,print);
+   [A tab m] = fase1(A,b,m,n,print);
 % Custo da fase 1 diferente de 0. Não é viável.
    if tab(1,1) != 0
      ind = 1;
@@ -19,22 +19,37 @@ function [ind x] = simplex(A,b,c,m,n,print)
    [ind x] = fase2(A,b,c,m,n,print,tab);
 endfunction
 
-function [ind A tab] = fase1(A,b,m,n,print)
+function [A tab m] = fase1(A,b,m,n,print)
+  % Vetor de custos diferente para a fase 1. Somatória de y, onde cada y é uma variável artificial.
   tmpc = [ zeros(n,1); ones(m,1)];
+  % Precisamos de um A maior para acomodar os y, e manter o problema da forma Ax = b. Assim, teremos [A 0] * [x y]' = Ax + y = b.
   tmpA = [ A zeros(m,m) ];
+  % Geramos um tableau inicial
   tab = gentab(A,b,tmpc,m,m+n);
-  [ind tab] = tabsimplex(tmpA,b,tmpc,m,m+n,print,[zeros(n,1); b], tab);
+  % Iterações do simplex vão aqui.
+  [ind tab] = tabsimplex(tmpA,b,tmpc,m,m+n,print, tab);
+  % Custo ótimo diferente de 0. Não é viável o problema.
   if tab(1,1) != 0
     return
   endif
+  % Iteramos mais algumas vezes para remover variáveis artificais. Se alguma restar, arrumamos A.
   [A tab m] = fixA(tmpA, tab, m, m+n);
 endfunction
 
-function [ind x] = fase2(A,b,c,m,n,print,x)
-  [ind tab] = tabsimplex(A,b,c,m,n,print,x,tab)
+function [ind x] = fase2(A,b,c,m,n,print,tab)
+  % x vazio caso o custo seja -Inf
+  x = [];
+  % Ja temos um tableau bonito com um ponto inicial. Os custos estão todos errados, porém. Arrumemos isso.
+  tab = arrumaTab(tab);
+  % Simplex, resolva isso pra gente, pro favor.
+  [ind tab] = tabsimplex(A,b,c,m,n,print,tab)
+  % Agora pegamos o vetor x a partir do tableau, caso o problema tenha solução única.
+  if ind == 0
+    x = vetorOtimo(tab, m, n);
+  endif
 endfunction
 
-function [ind tab] = tabsimplex(A,b,c,m,n,print,x,tab)
+function [ind tab] = tabsimplex(A,b,c,m,n,print,tab)
   endif
   % Enquanto tiver pelo menos um custo negativo na linha 0 do tableau
   while sum(tab(1,2:n)<0) >= 1
@@ -56,7 +71,7 @@ function [ind tab] = tabsimplex(A,b,c,m,n,print,x,tab)
       endif
     endfor 
     if minval == Inf 
-      ind = 0;
+      ind = -1;
       return
     endif
     % i = minrow;
@@ -70,5 +85,5 @@ function [ind tab] = tabsimplex(A,b,c,m,n,print,x,tab)
       endif
     endfor
   endwhile
-  ind = -1;
+  ind = 0;
 endfunction
