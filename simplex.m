@@ -20,13 +20,14 @@ function [ind x] = simplex(A,b,c,m,n,print)
 endfunction
 
 function [ind A tab] = fase1(A,b,m,n,print)
-  tmpc = [ zeros(n,1) ones(m,1)];
+  tmpc = [ zeros(n,1); ones(m,1)];
   tmpA = [ A zeros(m,m) ];
-  [ind tab] = tabsimplex(tmpA,b,tmpc,m,m+n,print,[zeros(1,n) b], []);
+  tab = gentab(A,b,tmpc,m,m+n);
+  [ind tab] = tabsimplex(tmpA,b,tmpc,m,m+n,print,[zeros(n,1); b], tab);
   if tab(1,1) != 0
     return
   endif
-  [A tab x m] = fixA(tmpA, tab, x, m, n);
+  [A tab m] = fixA(tmpA, tab, m, m+n);
 endfunction
 
 function [ind x] = fase2(A,b,c,m,n,print,x)
@@ -34,8 +35,6 @@ function [ind x] = fase2(A,b,c,m,n,print,x)
 endfunction
 
 function [ind tab] = tabsimplex(A,b,c,m,n,print,x,tab)
-  if tab == []
-    tab = gentab(A,b,c,m,n,x);
   endif
   % Enquanto tiver pelo menos um custo negativo na linha 0 do tableau
   while sum(tab(1,2:n)<0) >= 1
@@ -60,10 +59,16 @@ function [ind tab] = tabsimplex(A,b,c,m,n,print,x,tab)
       ind = 0;
       return
     endif
-    i = minrow;
-    % Divide a linha do pivô pelo pivô
-    tab(i, 1:n) = tab(i, 1:n) / tab(i,j);
-    
+    % i = minrow;
+    % Divide a linha do pivô pelo pivô, tornando o pivô = 1
+    tab(minrow, 1:n) = tab(minrow, 1:n) / tab(minrow,j);
+    % pivota
+    for i = 1:m
+      if i != minrow
+        % tab[i] = tab[i]- (tab[i][j]/tab[minrow][j]) * tab[minrow]
+        tab(i, 1:n) -= tab(i, j) * tab(minrow, 1:n);
+      endif
+    endfor
   endwhile
   ind = -1;
 endfunction
