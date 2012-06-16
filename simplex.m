@@ -32,7 +32,7 @@ function [A tab m] = fase1(A,b,m,n,print)
   % Precisamos de um A maior para acomodar os y, e manter o problema da forma Ax = b. Assim, teremos [A 0] * [x y]' = Ax + y = b.
   % tmpA = [ A zeros(m,m) ];
   % Geramos um tableau inicial
-  tab = gentab(A,b,tmpc,m,m+n,[zeros(1,n); b]);
+  tab = gentab(A,b,tmpc,m,m+n);
   % Iterações do simplex vão aqui.
   [ind tab] = tabsimplex(m,m+n,print, tab);
   % Custo ótimo diferente de 0. Não é viável o problema.
@@ -104,11 +104,11 @@ endfunction
 
 function tab = gentab(A,b,c,m,n)
   tab = zeros(m+1, n+1);
-  tab(1,1) = -(c' * b);
+  tab(1,1) = -(c(n-m+1:n)' * b);
   tab(2:m+1, 1) = b;
   tab(2:m+1, 2:(n-m+1)) = A;
-  tab(2:m+1, n-m+2:n) = eye(m);
-  tab(1, 2:n) = c' - ones(m) * [A zeros(m, m)];
+  tab(2:m+1, n-m+2:n+1) = eye(m);
+  tab(1, 2:n+1) = c' - ones(1,m) * [A eye(m)]
 endfunction 
 
 
@@ -129,7 +129,7 @@ function ind = getBaseInd(tab, m, n)
   ind = zeros(1, m-1);
   for j = 2:n
     for i = 2:m
-      if tab(2:m, j) == aux(1:m-1, i-1)
+      if tab(2:m, j) == aux(1:m-1, i-1) & tab(1, j == 0)
         ind(i-1) = j-1;
         break
       endif
