@@ -61,7 +61,8 @@ endfunction
 
 
 function [ind tab] = tabsimplex(m,n,print,tab)
-  endif
+  n++;
+  m++;
   % Enquanto tiver pelo menos um custo negativo na linha 0 do tableau
   while sum(tab(1,2:n)<0) >= 1
     j = 2;
@@ -107,7 +108,31 @@ function tab = gentab(A,b,c,m,n)
   tab(2:m+1, 1) = b;
   tab(2:m+1, 2:(n-m+1)) = A;
   tab(2:m+1, n-m+2:n) = eye(m);
-  tab(1, 2:n) = c' - ones(m) * A;
+  tab(1, 2:n) = c' - ones(m) * [A zeros(m, m)];
 endfunction 
-  
+
+
+
+function tab = fixCost(A, c, m, n, tab)
+  ind = getBaseInd(tab, m, n);
+  cb = c(1, ind);
+  tab(1,1) = -(c' * tab(1, 2:m+1));
+  B = A(ind, 1:m);
+  tab(1, 2:n+1) = c'- cb' * inv(B) * A;
+endfunction
+
+
+function ind = getBaseInd(tab, m, n)
+  m++;
+  n++;
+  aux = eye(m-1, m-1);
+  for j = 2:n
+    for i = 2:m
+      if tab(2:m, j) == aux(1:m-1, i)
+        ind(i) = j-1;
+        break
+      endif
+    endfor 
+  endfor
+endfunction
   
