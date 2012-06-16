@@ -125,11 +125,12 @@ endfunction
 function ind = getBaseInd(tab, m, n)
   m++;
   n++;
-  aux = eye(m-1, m-1);
+  aux = eye(m-1);
+  ind = zeros(1, m-1);
   for j = 2:n
     for i = 2:m
-      if tab(2:m, j) == aux(1:m-1, i)
-        ind(i) = j-1;
+      if tab(2:m, j) == aux(1:m-1, i-1)
+        ind(i-1) = j-1;
         break
       endif
     endfor 
