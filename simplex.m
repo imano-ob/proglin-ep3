@@ -24,13 +24,15 @@ function [ind x] = simplex(A,b,c,m,n,print)
    [ind x] = fase2(A,b,c,m,n,print,tab);
 endfunction
 
+
+
 function [A tab m] = fase1(A,b,m,n,print)
   % Vetor de custos diferente para a fase 1. Somatória de y, onde cada y é uma variável artificial.
   tmpc = [ zeros(n,1); ones(m,1)];
   % Precisamos de um A maior para acomodar os y, e manter o problema da forma Ax = b. Assim, teremos [A 0] * [x y]' = Ax + y = b.
   tmpA = [ A zeros(m,m) ];
   % Geramos um tableau inicial
-  tab = gentab(tmpA,b,tmpc,m,m+n);
+  tab = gentab(A,b,tmpc,m,m+n);
   % Iterações do simplex vão aqui.
   [ind tab] = tabsimplex(m,m+n,print, tab);
   % Custo ótimo diferente de 0. Não é viável o problema.
@@ -40,6 +42,8 @@ function [A tab m] = fase1(A,b,m,n,print)
   % Iteramos mais algumas vezes para remover variáveis artificais. Se alguma restar, arrumamos A.
   [tab m] = fixA(tmpA, tab, m, m+n);
 endfunction
+
+
 
 function [ind x] = fase2(A,b,c,m,n,print,tab)
   % x vazio caso o custo seja -Inf
@@ -53,6 +57,8 @@ function [ind x] = fase2(A,b,c,m,n,print,tab)
     x = vetorOtimo(tab, m, n);
   endif
 endfunction
+
+
 
 function [ind tab] = tabsimplex(m,n,print,tab)
   endif
