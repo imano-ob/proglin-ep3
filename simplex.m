@@ -14,44 +14,48 @@ function [ind x] = simplex(A,b,c,m,n,print)
      endif 
    endfor
 % fase 1! Teremos, no retorno, um A sem restrições redundantes e um tableau preparado
-   tab = fase1(A,b,m,n,print)
+   [tab m] = fase1(A,b,m,n,print);
 % Custo da fase 1 diferente de 0. Não é viável.
    if tab(1,1) != 0
      ind = 1;
      return
    endif
 % Fase 2 do simplex!
-   [ind x] = fase2(A,b,c,m,n,print,tab);
+   [ind x] = fase2(A,b,c,m,n,print,tab)
 endfunction
 
 
 
-function [A tab m] = fase1(A,b,m,n,print)
+function [tab m] = fase1(A,b,m,n,print)
   % Geramos um tableau inicial
   tab = genPhase1Tab(A,b, m, n);
   % Iterações do simplex vão aqui.
-  [ind tab] = tabsimplex(m,m+n,print, tab)
+  [ind tab] = tabsimplex(m,m+n,print, tab);
   % Custo ótimo diferente de 0. Não é viável o problema.
   if tab(1,1) != 0
     return
   endif
   % Iteramos mais algumas vezes para remover variáveis artificais. Se alguma restar, arrumamos A.
-  [tab m] = fixA(tab, m, m+n);
+  [tab m] = fixA(tab, m, n);
 endfunction
-,m
 
+function [tab m] = fixA(tab, m, n)
+  tab = tab(1:m+1, 1:n+1);
+endfunction
 
 function [ind x] = fase2(A,b,c,m,n,print,tab)
   % x vazio caso o custo seja -Inf
   x = [];
   % Ja temos um tableau bonito com um ponto inicial. Os custos estão todos errados, porém. Arrumemos isso.
-  tab = arrumaTab(tab, c);
+  tab = fixCost(A, c, m, n, tab);
   % Simplex, resolva isso pra gente, pro favor.
-  [ind tab] = tabsimplex(m,n,print,tab)
+  [ind tab] = tabsimplex(m,n,print,tab);
   % Agora pegamos o vetor x a partir do tableau, caso o problema tenha solução única.
   if ind == 0
-    x = vetorOtimo(tab, m, n);
-  endif
+    aux = getBaseInd(tab, m, n);
+    x = zeros(n, 1);
+    x(aux) = tab(2:m+1);
+  end
 endfunction
 
 
@@ -112,21 +116,22 @@ endfunction
 
 function tab = fixCost(A, c, m, n, tab)
   ind = getBaseInd(tab, m, n);
-  cb = c(1, ind);
-  tab(1,1) = -(c' * tab(1, 2:m+1));
-  B = A(ind, 1:m);
+  cb = c(ind);
+  tab(1,1) = -(cb' * tab(2:m+1, 1));
+  B = A(1:m, ind);
+  B * inv(B);
   tab(1, 2:n+1) = c'- cb' * inv(B) * A;
 endfunction
 
 
 function ind = getBaseInd(tab, m, n)
-  m++;
-  n++;
+  m = m + 1;
+  n = n + 1;
   aux = eye(m-1);
   ind = zeros(1, m-1);
   for j = 2:n
     for i = 2:m
-      if tab(2:m, j) == aux(1:m-1, i-1) & tab(1, j == 0)
+      if tab(2:m, j) == aux(1:m-1, i-1) & tab(1, j) == 0
         ind(i-1) = j-1;
         break
       endif
