@@ -14,7 +14,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
      endif 
    endfor
 % fase 1! Teremos, no retorno, um A sem restrições redundantes e um tableau preparado
-   [A tab m] = fase1(A,b,m,n,print);
+   tab = fase1(A,b,m,n,print);
 % Custo da fase 1 diferente de 0. Não é viável.
    if tab(1,1) != 0
      ind = 1;
@@ -30,31 +30,31 @@ function [A tab m] = fase1(A,b,m,n,print)
   % Precisamos de um A maior para acomodar os y, e manter o problema da forma Ax = b. Assim, teremos [A 0] * [x y]' = Ax + y = b.
   tmpA = [ A zeros(m,m) ];
   % Geramos um tableau inicial
-  tab = gentab(A,b,tmpc,m,m+n);
+  tab = gentab(tmpA,b,tmpc,m,m+n);
   % Iterações do simplex vão aqui.
-  [ind tab] = tabsimplex(tmpA,b,tmpc,m,m+n,print, tab);
+  [ind tab] = tabsimplex(m,m+n,print, tab);
   % Custo ótimo diferente de 0. Não é viável o problema.
   if tab(1,1) != 0
     return
   endif
   % Iteramos mais algumas vezes para remover variáveis artificais. Se alguma restar, arrumamos A.
-  [A tab m] = fixA(tmpA, tab, m, m+n);
+  [tab m] = fixA(tmpA, tab, m, m+n);
 endfunction
 
 function [ind x] = fase2(A,b,c,m,n,print,tab)
   % x vazio caso o custo seja -Inf
   x = [];
   % Ja temos um tableau bonito com um ponto inicial. Os custos estão todos errados, porém. Arrumemos isso.
-  tab = arrumaTab(tab);
+  tab = arrumaTab(tab, c);
   % Simplex, resolva isso pra gente, pro favor.
-  [ind tab] = tabsimplex(A,b,c,m,n,print,tab)
+  [ind tab] = tabsimplex(m,n,print,tab)
   % Agora pegamos o vetor x a partir do tableau, caso o problema tenha solução única.
   if ind == 0
     x = vetorOtimo(tab, m, n);
   endif
 endfunction
 
-function [ind tab] = tabsimplex(A,b,c,m,n,print,tab)
+function [ind tab] = tabsimplex(m,n,print,tab)
   endif
   % Enquanto tiver pelo menos um custo negativo na linha 0 do tableau
   while sum(tab(1,2:n)<0) >= 1
