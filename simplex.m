@@ -4,7 +4,7 @@
 function [ind x] = simplex(A,b,c,m,n,print)
 % Does teh simplex ftw
 % Muda A e b para que b seja >= 0
-   [A b] = tornabpositivo(A,b,n);
+   [A b] = tornabpositivo(A,b,m);
 % fase 1!
    [ind x A] = fase1(A,b,m,n,print);
    if ind == 1
@@ -16,8 +16,9 @@ endfunction
 function [ind x A] = fase1(A,b,m,n,print)
   tmpc = [ zeros(n,1) ones(m,1)];
   tmpA = [ A zeros(m,m) ];
-  [ind cost x tab] = tabsimplex(tmpA,b,tmpc,m,m+n,print,[zeros(1,n) b], []);
-  if cost > 0
+  [ind x tab] = tabsimplex(tmpA,b,tmpc,m,m+n,print,[zeros(1,n) b], []);
+  if tab(1,1) > 0
+    x = 
     ind = 1;
   endif
   [A tab x m] = fixA(tmpA, tab, x, m, n);
