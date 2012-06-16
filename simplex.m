@@ -7,7 +7,12 @@ function [ind x] = simplex(A,b,c,m,n,print)
 % Se não tivermos soluções satisfatórias, retornamos x vazio
   x = [];
 % Muda A e b para que b seja >= 0
-   [A b] = tornabpositivo(A,b,m);
+   for i = 1:m
+     if b(i) < 0
+       A(i, 1:n) *= -1;
+       b(i) *= -1;
+     endif 
+   endfor
 % fase 1! Teremos, no retorno, um A sem restrições redundantes e um tableau preparado
    [A tab m] = fase1(A,b,m,n,print);
 % Custo da fase 1 diferente de 0. Não é viável.
