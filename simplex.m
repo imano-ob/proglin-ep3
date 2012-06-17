@@ -21,7 +21,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
      return
    endif
 % Fase 2 do simplex!
-   [ind x] = fase2(A,b,c,m,n,print,tab);
+   [ind x] = fase2(A,b,c,m,n,print,tab)
 endfunction
 
 
@@ -133,7 +133,7 @@ function ind = getBaseInd(tab, m, n)
   ind = zeros(1, m-1);
   for j = 2:n
     for i = 2:m
-      if tab(2:m, j) == aux(:, i-1) & tab(1, j) == 0
+      if tab(2:m, j) == aux(:, i-1) & tab(1, j) < 0.0001
         ind(i-1) = j-1;
         break
       endif
