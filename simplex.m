@@ -88,12 +88,12 @@ function [ind tab] = tabsimplex(m,n,print,tab)
     endif
     % i = minrow;
     % Divide a linha do pivô pelo pivô, tornando o pivô = 1
-    tab(minrow, 1:n) = tab(minrow, 1:n) / tab(minrow,j);
+    tab(minrow, :) = tab(minrow, :) / tab(minrow,j);
     % pivota
     for i = 1:m
       if i != minrow
         % tab[i] = tab[i]- (tab[i][j]/tab[minrow][j]) * tab[minrow]
-        tab(i, 1:n) -= tab(i, j) * tab(minrow, 1:n);
+        tab(i, :) -= tab(i, j) * tab(minrow, :);
       endif
     endfor
   endwhile
@@ -118,7 +118,7 @@ function tab = fixCost(A, c, m, n, tab)
   ind = getBaseInd(tab, m, n);
   cb = c(ind);
   tab(1,1) = -(cb' * tab(2:m+1, 1));
-  B = A(1:m, ind);
+  B = A(:, ind);
   B * inv(B);
   tab(1, 2:n+1) = c'- cb' * inv(B) * A;
 endfunction
@@ -131,7 +131,7 @@ function ind = getBaseInd(tab, m, n)
   ind = zeros(1, m-1);
   for j = 2:n
     for i = 2:m
-      if tab(2:m, j) == aux(1:m-1, i-1) & tab(1, j) == 0
+      if tab(2:m, j) == aux(:, i-1) & tab(1, j) == 0
         ind(i-1) = j-1;
         break
       endif
