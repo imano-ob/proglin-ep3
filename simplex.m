@@ -14,19 +14,19 @@ function [ind x] = simplex(A,b,c,m,n,print)
      endif 
    endfor
 % fase 1! Teremos, no retorno, um A sem restrições redundantes e um tableau preparado
-   [tab m] = fase1(A,b,m,n,print);
+   [tab m A b c] = fase1(A,b,c,m,n,print);
 % Custo da fase 1 diferente de 0. Não é viável.
    if tab(1,1) != 0
      ind = 1;
      return
    endif
 % Fase 2 do simplex!
-   [ind x] = fase2(A,b,c,m,n,print,tab)
+   [ind x] = fase2(A,b,c,m,n,print,tab);
 endfunction
 
 
 
-function [tab m] = fase1(A,b,m,n,print)
+function [tab m A b c] = fase1(A,b,c,m,n,print)
   % Geramos um tableau inicial
   tab = genPhase1Tab(A,b, m, n);
   % Iterações do simplex vão aqui.
@@ -36,12 +36,14 @@ function [tab m] = fase1(A,b,m,n,print)
     return
   endif
   % Iteramos mais algumas vezes para remover variáveis artificais. Se alguma restar, arrumamos A.
-  [tab m] = fixA(tab, m, n);
+  [tab m zerobases] = removeArtificialBases(tab,m,n);
+  zerobases = zerobases -1;
+  A(zerobases, :) = [];
+  b(zerobases) = [];
+  c(zerobases) = [];
 endfunction
 
-function [tab m] = fixA(tab, m, n)
-  tab = tab(1:m+1, 1:n+1);
-endfunction
+
 
 function [ind x] = fase2(A,b,c,m,n,print,tab)
   % x vazio caso o custo seja -Inf
@@ -139,3 +141,67 @@ function ind = getBaseInd(tab, m, n)
   endfor
 endfunction
   
+function [tab m zerobases] = removeArtificialBases(tab_o,m,n)
+  % tab = O tableau atual
+  % ind_o = indices atuais
+  % n = numero de bases originais
+  mfim = m;
+  zerobases = [];
+  ind_o = getBaseInd(tab_o, m, m+n);
+  for i = 2:m+1
+	  if (ind_o(i-1) > n)	  
+	  % Esta base e artificial, precisamos remove-la
+	  % Localiza com quem devo trocar o meu índice
+	    artifBase = i;
+	    zeroCount = 0;
+	    for k = 2:n+1
+	      if tab_o(artifBase,k) == 0
+		      zeroCount = zeroCount + 1; % Número de Zeros detectados + 1
+		    else
+		     % é não zero, devemos escolher esta para com a base artificial, as devemos ver se ela não está na lista de índices!
+		      if verificaSeEstaNaLista(ind_o,m,k)
+		        %está na lista, não pode ser usada.
+		     else 
+		      %não está na lista, entao escolhemos ela (colocar k em j)
+			    % alterar na lista de indices (indice da artif agora é da original)
+			    j = k;
+			    ind_o(i-1) = k;
+			    k = n+1; % terminar o loop aqui
+		    endif
+		  endif
+	  endfor
+	  if zeroCount == n
+	    zerobases = [zerobases artifBase];
+	    mfim --;
+	    break;
+	    %existem zeros em todas a artifBase-esima linha, entao esta linha é redundante!
+	  endif
+	  
+	  % executa a troca
+	  minrow = artifBase; % pivô (a base artificial que via sair)
+	  j = ind_o(artifBase -1) + 1;
+	  % Divide a linha do pivô pelo pivô, tornando o pivô = 1
+      tab_o(minrow, 1:n) = tab_o(minrow, 1:n) / tab_o(minrow,j);
+      % pivota
+      for i = 1:m
+        if i != minrow
+          % tab[i] = tab[i]- (tab[i][j]/tab[minrow][j]) * tab[minrow]
+          tab_o(i, 1:n) -= tab_o(i, j) * tab_o(minrow, 1:n);
+        endif
+      endfor	  
+	  endif
+  endfor
+  m = mfim;
+  tab_o(zerobases, :) = [];
+  tab = tab_o(:, 1:n+1);
+endfunction
+  
+function res = verificaSeEstaNaLista(ind,m,id)
+  res = false;
+  for i = 1:m
+    if ind(i) == id
+	  res = true;
+	  return;
+	endif
+  endfor
+endfunction
