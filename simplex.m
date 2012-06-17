@@ -104,12 +104,12 @@ endfunction
 
 function tab = genPhase1Tab(A,b,m,n)
   c = [zeros(n,1); ones(m,1)];
+  A = [A eye(m)];
   tab = zeros(m+1, m+n+1);
   tab(1,1) = -(c(n+1:m+n)' * b);
   tab(2:m+1, 1) = b;
-  tab(2:m+1, 2:n+1) = A;
-  tab(2:m+1, n+2:m+n+1) = eye(m);
-  tab(1, 2:n+m+1) = c' - ones(1,m) * [A eye(m)];
+  tab(2:m+1, 2:m+n+1) = A;
+  tab(1, 2:n+m+1) = c' - ones(1,m) * [A];
 endfunction 
 
 
