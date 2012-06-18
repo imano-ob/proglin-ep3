@@ -114,9 +114,7 @@ endfunction
 function tab = fixCost(A, c, m, n, tab, base)
   cb = c(base);
   tab(1,1) = -(cb' * tab(2:m+1, 1));
-  B = A(:, base);
-  B * inv(B);
-  tab(1, 2:n+1) = c'- cb' * inv(B) * A;
+  tab(1, 2:n+1) = c'- cb' * tab(2:m+1, 2:n+1);
 endfunction
 
 
