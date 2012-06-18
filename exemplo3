@@ -1,0 +1,37 @@
+# Created by Octave 3.2.4, Mon Jun 18 09:05:13 2012 BRT <renan@renan-mintnet>
+# name: A
+# type: matrix
+# rows: 4
+# columns: 7
+ 1 2 2 0 1 0 0
+ 2 1 2 0 0 1 0
+ 2 2 1 0 0 0 1
+ 0 0 0 1 0 0 0
+# name: ans
+# type: scalar
+7
+# name: b
+# type: matrix
+# rows: 4
+# columns: 1
+ 20
+ 20
+ 20
+ 0
+# name: c
+# type: matrix
+# rows: 7
+# columns: 1
+ -10
+ -12
+ -12
+ 0
+ 0
+ 0
+ 0
+# name: m
+# type: scalar
+4
+# name: n
+# type: scalar
+7

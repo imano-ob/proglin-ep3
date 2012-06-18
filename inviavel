@@ -1,0 +1,38 @@
+# Created by Octave 3.2.4, Sun Jun 17 00:15:13 2012 BRT <renan@renan-mintnet>
+# name: A
+# type: matrix
+# rows: 5
+# columns: 6
+ 1 2 2 1 0 0
+ 2 1 2 0 1 0
+ 2 2 1 0 0 1
+ 2 2 1 0 0 0
+ 2 2 1 0 0 0
+# name: ans
+# type: scalar
+1
+# name: b
+# type: matrix
+# rows: 5
+# columns: 1
+ 10
+ 10
+ 10
+ 12
+ 12
+# name: c
+# type: matrix
+# rows: 6
+# columns: 1
+ 10
+ 10
+ 10
+ 0
+ 0
+ 0
+# name: m
+# type: scalar
+5
+# name: n
+# type: scalar
+6

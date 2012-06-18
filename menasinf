@@ -1,0 +1,24 @@
+# Created by Octave 3.2.4, Mon Jun 18 13:35:16 2012 BRT <renan@renan-mintnet>
+# name: A
+# type: matrix
+# rows: 1
+# columns: 2
+ 0 1
+# name: ans
+# type: scalar
+-1
+# name: b
+# type: scalar
+2
+# name: c
+# type: matrix
+# rows: 2
+# columns: 1
+ -1
+ 0
+# name: m
+# type: scalar
+1
+# name: n
+# type: scalar
+2
