@@ -14,10 +14,9 @@ function [ind x] = simplex(A,b,c,m,n,print)
      endif 
    endfor
 % fase 1! Teremos, no retorno, um A sem restrições redundantes e um tableau preparado
-   [tab m A b base] = fase1(A,b,m,n,print);
+   [ind tab m A b base] = fase1(A,b,m,n,print);
 % Custo da fase 1 diferente de 0. Não é viável.
-   if tab(1,1) != 0
-     ind = 1;
+   if ind != 0
      return
    endif
 % Fase 2 do simplex!
@@ -26,13 +25,14 @@ endfunction
 
 
 
-function [tab m A b base] = fase1(A,b,m,n,print)
+function [ind tab m A b base] = fase1(A,b,m,n,print)
   % Geramos um tableau inicial
   [tab base] = genFase1Tab(A,b, m, n);
   % Iterações do simplex vão aqui.
   [ind tab base] = tabsimplex(m,m+n,print, tab, base);
   % Custo ótimo diferente de 0. Não é viável o problema.
-  if tab(1,1) != 0
+  if abs(tab(1,1)) > 0.0001
+    ind = 1; 
     return
   endif
   % Iteramos mais algumas vezes para remover variáveis artificais. Se alguma restar, arrumamos A.
@@ -42,6 +42,7 @@ function [tab m A b base] = fase1(A,b,m,n,print)
   b(zerobases) = [];
   tab(zerobases+1, :) = [];
   base(zerobases) = [];
+  ind = 0;
 endfunction
 
 
