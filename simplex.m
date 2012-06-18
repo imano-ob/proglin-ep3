@@ -17,15 +17,30 @@ function [ind x] = simplex(A,b,c,m,n,print)
    [ind tab m A b base] = fase1(A,b,m,n,print);
 % Custo da fase 1 diferente de 0. Não é viável.
    if ind != 0
+     printf("Problema inviavel!\n");
      return
    endif
 % Fase 2 do simplex!
-   [ind x] = fase2(A,b,c,m,n,print,tab, base)
+   [ind x] = fase2(A,b,c,m,n,print,tab, base);
+   if(print)
+     if(ind == -1)
+       printf("Problema ilimitado com custo menos infinito!\n");
+     else
+       printf("\nx = \n");
+	   for i = 1:n
+	     printf("      %.3f\n", x(i));
+	   endfor
+     endif
+       printf("\n")
+	endif
 endfunction
 
 
 
 function [ind tab m A b base] = fase1(A,b,m,n,print)
+  if print == true
+    printf("\nSimplex: Fase 1\n\n"); 
+  endif
   % Geramos um tableau inicial
   [tab base] = genFase1Tab(A,b, m, n);
   % Iterações do simplex vão aqui.
@@ -48,6 +63,9 @@ endfunction
 
 
 function [ind x] = fase2(A,b,c,m,n,print,tab,base)
+  if print == true
+    printf("\nSimplex: Fase 2\n\n"); 
+  endif 
   % x vazio caso o custo seja -Inf
   x = [];
   % Ja temos um tableau bonito com um ponto inicial. Os custos estão todos errados, porém. Arrumemos isso.
@@ -67,8 +85,11 @@ endfunction
 function [ind tab base] = tabsimplex(m,n,print,tab,base)
   n++;
   m++;
+  iteracao=0;
   % Enquanto tiver pelo menos um custo negativo na linha 0 do tableau
   while sum(tab(1,2:n)<0) >= 1
+	%conta a iteração
+    iteracao++;
     j = 2;
     %pega a primeira coluna com custo negativo
     while tab( 1, j ) >= 0
@@ -90,10 +111,24 @@ function [ind tab base] = tabsimplex(m,n,print,tab,base)
       ind = -1;
       return
     endif
+
+	%Impressao
+	if print == true
+	  printf("\nIteracao %d\n",iteracao);
+	  imprimeIteracao(m,n,tab,base,minrow,j);
+    endif
+	
     % Divide a linha do pivô pelo pivô, tornando o pivô = 1
     tab(minrow, :) = tab(minrow, :) / tab(minrow,j);
     [tab base] = pivota(tab,m,minrow,j,base);
+	
+
   endwhile
+  if(print)
+    printf("\nFinal\n");
+    imprimeIteracao(m,n,tab,base,0,0);
+    printf("\nCusto : %.3f\n", -tab(1,1));
+  endif
   ind = 0;
 endfunction
 
@@ -189,4 +224,31 @@ function [tab base] = pivota (tab,m,minrow,j,base)
     endif
   endfor
   base(minrow-1) = j-1;
+endfunction
+
+function imprimeIteracao(m,n,tab,base,pivol,pivoc)
+	  printf("             |");
+	  for p = 1:n-1
+	    printf(" x%d       |",p);
+	  endfor
+	  printf("\n    ");
+	  for p = 1:n
+	   printf("%8.3f | ",tab(1,p));
+	  endfor
+	  printf("\n---");
+	  for p = 1:n
+	   printf("-----------");
+	  endfor
+	  printf("\n");
+	  for p = 1:m-1
+	    printf(" x%d ",base(p));
+		for q = 1:n
+		  if pivol == p+1 && pivoc == q	
+            printf("%8.3f*| ",tab(p+1,q));		  
+		  else
+	        printf("%8.3f | ",tab(p+1,q));
+	      endif
+	    endfor
+		printf("\n");
+	  endfor
 endfunction
